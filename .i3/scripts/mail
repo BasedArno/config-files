@@ -1,0 +1,3 @@
+#/bin/bash
+
+curl -u "mindlessentropy@gmail.com:(epii)^0=1" --silent "https://mail.google.com/mail/feed/atom"

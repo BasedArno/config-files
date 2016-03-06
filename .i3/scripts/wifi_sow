@@ -1,0 +1,49 @@
+#!/bin/bash
+# Copyright (C) 2014 Alexander Keller <github@nycroth.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#------------------------------------------------------------------------
+
+INTERFACE="${BLOCK_INSTANCE:-wlan0}"
+
+#------------------------------------------------------------------------
+
+# As per #36 -- It is transparent: e.g. if the machine has no battery or wireless
+# connection (think desktop), the corresponding block should not be displayed.
+[[ ! -d /sys/class/net/${INTERFACE}/wireless ]] ||
+    [[ "$(cat /sys/class/net/$INTERFACE/operstate)" = 'down' ]] && exit
+
+#------------------------------------------------------------------------
+
+if [ "$1" = "strength" ]
+then
+	QUALITY=$(grep $INTERFACE /proc/net/wireless | awk '{ print int($3 * 100 / 70) }')
+	COLOR=$(julia -e "r = hex(Int(floor(255*(1-$QUALITY/100))),2); g = hex(Int(floor(255*($QUALITY/100))),2); b = hex(0, 2); println(string(r,g,b))")
+	#COLOR=$(python3 -c "print('#',hex(int(255*(1-$QUALITY/100))*65536 + int(255*$QUALITY/100)*256)[3:],sep='')")
+
+	echo "$QUALITY%" # full text
+	echo "$QUALITY%" # short text
+	echo "$COLOR" # color
+elif [ "$1" = "name" ]
+then
+	NETWORK=$(iw dev wlan0 link | grep SSID | cut -d " " -f 2-)
+
+	echo "on $NETWORK"
+	echo "on $NETWORK"
+else
+	echo "error"
+	echo "err"
+	echo "#ff0000"
+fi

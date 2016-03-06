@@ -1,0 +1,9 @@
+#!/bin/bash
+
+HSCRIPT=$HOME/.config/herbstluftwm
+
+msg="$($HSCRIPT/herbstinput.sh 'herbstmsg')"
+
+cmd="herbstclient $msg"
+
+exec $cmd

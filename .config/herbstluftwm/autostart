@@ -1,0 +1,171 @@
+#!/bin/bash
+
+### Herbstluftwm Configuration File
+### Arno Byrd
+
+Alt=Mod1 # Use Alt key instead
+Win=Mod4 # Use Windows key instead
+HSCRIPT="$HOME/.config/herbstluftwm"
+#Mod=Mod4
+
+function hc() {
+	herbstclient "$@"
+}
+
+hc emit_hook reload
+
+## Bare Basics
+hc keyunbind --all
+#hc set_layout max # by default
+hc set default_frame_layout 2 # max by default
+hc keybind $Win-$Alt-q quit
+hc keybind $Win-Shift-r reload
+hc keybind $Win-Return spawn gnome-terminal &
+hc keybind $Win-space spawn $HOME/bin/rofi.sh
+hc keybind $Win-c spawn $HSCRIPT/herbstmsg
+
+## Layout Control
+hc keybind $Win-x close_or_remove
+hc keybind $Win-f floating toggle
+hc keybind $Win-F11 fullscreen toggle
+hc keybind $Win-p pseudotile toggle
+hc keybind $Win-r rotate
+# window layout within frame
+hc keybind $Win-v set_layout vertical
+hc keybind $Win-h set_layout horizontal
+hc keybind $Win-m set_layout max # stacked mode
+hc keybind $Win-t set_layout grid # tiled
+# splitting
+hc keybind $Win-$Alt-Right split right
+hc keybind $Win-$Alt-Left split left
+hc keybind $Win-$Alt-Up split top
+hc keybind $Win-$Alt-Down split bottom
+# old split commands
+#hc keybind $Alt-Control-Right split right
+#hc keybind $Alt-Control-Left split left
+#hc keybind $Alt-Control-Up split top
+#hc keybind $Alt-Control-Down split bottom
+
+## Controlling frames/windows
+# move focus
+hc keybind $Win-Right focus right
+hc keybind $Win-Left focus left
+hc keybind $Win-Up focus up
+hc keybind $Win-Down focus down
+# move window
+hc keybind $Win-Shift-Right shift right
+hc keybind $Win-Shift-Left shift left
+hc keybind $Win-Shift-Up shift up
+hc keybind $Win-Shift-Down shift down
+# resize
+increment="+0.05"
+hc keybind $Win-Control-Right resize right $increment
+hc keybind $Win-Control-Left resize left $increment
+hc keybind $Win-Control-Up resize up $increment
+hc keybind $Win-Control-Down resize down $increment
+# splitting
+hc keybind $Win-Shift-v chain , split vertical 0.5 , focus down
+hc keybind $Win-Shift-h chain , split horizontal 0.5 , focus right
+# switching
+hc keybind $Alt-Tab cycle_all +1
+hc keybind $Alt-Shift-Tab cycle_all -1
+hc keybind $Win-b use_previous
+
+## Window Rules
+hc unrule --all
+hc rule focus=on
+hc rule windowtype~'_NET_WM_WINDOW_TYPE_(DIALOG|UTILITY|SPLASH)' pseudotile=on
+hc rule windowtype='_NET_WM_WINDOW_TYPE_DIALOG' focus=on
+hc rule windowtype~'_NET_WM_WINDOW_TYPE_(NOTIFICATION|DOCK)' manage=off
+# gimp
+#hc rule class=Gimp tag=gimp index=01 pseudotile=on
+#hc rule class=Gimp windowrole~'gimp-(image-window|toolbox|dock)' pseudotile=off
+#hc rule class=Gimp windowrole=gimp-toolbox focus=off index=00
+#hc rule class=Gimp windowrole=gimp-dock focus=off index=1
+
+## Workspaces
+TAG_NAMES=( "Eins" "Zwei" "Drei" "Vier" "Fünf" "Sechs")
+TAG_KEYS=( {1..6} )
+
+hc rename default "${TAG_NAMES[0]}" || true
+for i in ${!TAG_NAMES[@]} ; do
+    hc add "${TAG_NAMES[$i]}"
+    key="${TAG_KEYS[$i]}"
+    if ! [ -z "$key" ] ; then
+        hc keybind "$Win-$key" use "${TAG_NAMES[$i]}"
+        hc keybind "$Win-Shift-$key" chain , move "${TAG_NAMES[$i]}" , use "${TAG_NAMES[$i]}"
+    fi
+done
+hc keybind $Win-Tab use_index +1 --skip-visible
+hc keybind $Win-Shift-Tab  use_index -1 --skip-visible
+hc keybind $Win-Shift-x spawn $HSCRIPT/close_tag.sh
+hc keybind $Win-n spawn $HSCRIPT/new_tag.sh
+hc keybind $Win-u spawn $HSCRIPT/use_tag.sh
+
+## Mouse Controls
+# only used in floating mode
+hc mousebind $Win-Button1 move
+hc mousebind $Win-Button2 zoom
+hc mousebind $Win-Button3 resize
+
+## Status Bar
+hc keybind $Win-semicolon emit_hook togglehidepanel
+#hc keybind $Win-Shift-d chain , emit_hook quit_panel , spawn $HSCRIPT/panel.sh &
+
+## Colors
+hc keybind $Win-Shift-d spawn $HSCRIPT/update_theme.sh
+hc spawn $HSCRIPT/update_theme.sh
+#picfile="/home/arno/media/pics/Wallpapers/asuna.png"
+#picfile=$(ls $HOME/Pictures/Wallpapers/*.png \
+#	| shuf \
+#	| head -n 1)
+#colorfile="$HSCRIPT/colors.txt"
+
+#feh --bg-scale "$picfile" # set the background image
+#/home/arno/installations/colors-0.3/colors -n 8 "$picfile" > "$colorfile" # get the dominant colors
+#$HSCRIPT/colors.sh "$picfile"
+
+# assign them to variables darker colors first
+#eins=$(sed '1q;d' "$colorfile")
+#zwei=$(sed '2q;d' "$colorfile")
+#drei=$(sed '3q;d'  "$colorfile")
+#vier=$(sed '4q;d'  "$colorfile")
+#fuenf=$(sed '5q;d'  "$colorfile")
+#sechs=$(sed '6q;d'  "$colorfile")
+#sieben=$(sed '7q;d'  "$colorfile")
+#acht=$(sed '8q;d'  "$colorfile")
+
+# set colors, gaps, etc...
+hc set frame_gap 50
+hc keybind $Win-g chain , cycle_value frame_gap 0 4 12 50 , emit_hook quit_panel , spawn $HSCRIPT/panel.sh &
+hc keybind $Win-9 chain , set frame_gap 50 , emit_hook quit_panel , spawn $HSCRIPT/panel.sh &
+hc keybind $Win-0 chain , set frame_gap 0 , emit_hook quit_panel , spawn $HSCRIPT/panel.sh &
+hc set frame_border_inner_width 0
+hc set frame_border_border_width 1
+hc set frame_normal_opacity 25
+hc set frame_active_opacity 25
+hc set window_gap 0
+hc set window_border_width 4
+hc set window_border_inner_width 4
+hc set snap_distance 4
+
+#hc set frame_bg_normal_color "$eins"
+#hc set frame_bg_active_color "$eins"
+#hc set frame_bg_urgent_color "$eins"
+#hc set frame_border_normal_color "$zwei"
+#hc set frame_border_active_color "$vier"
+#hc set frame_border_urgent_color "$zwei"
+#hc set window_border_normal_color "$fuenf"
+#hc set window_border_active_color "$acht"
+#hc set window_border_urgent_color "$sechs"
+
+## Background Processes
+# start compositing manager (options now in compton.conf!)
+compton & #-cCGb --backend glx --paint-on-overlay --vsync opengl &
+# and gnome-settings
+gnome-settings-daemon &
+# extra key bindings
+killall xbindkeys
+xbindkeys &
+# panel!
+$HSCRIPT/panel.sh &

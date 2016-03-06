@@ -1,0 +1,40 @@
+#!/bin/bash
+
+title="${1:-Notice}"
+message="${2:-take notice}"
+duration="${3:-5}"
+
+# extract system colors
+colorfile="$HOME/.config/herbstluftwm/colors.txt"
+eins=$(sed '1q;d' "$colorfile")
+zwei=$(sed '2q;d' "$colorfile")
+drei=$(sed '3q;d'  "$colorfile")
+vier=$(sed '4q;d'  "$colorfile")
+fuenf=$(sed '5q;d'  "$colorfile")
+sechs=$(sed '6q;d'  "$colorfile")
+sieben=$(sed '7q;d'  "$colorfile")
+acht=$(sed '8q;d'  "$colorfile")
+
+x=$(($(herbstclient get frame_gap) + $(herbstclient get window_gap)))
+#x=50 # align left with start of status bar
+y=28 # put below status bar with 4 pixel gap
+height=24
+font="-*-fixed-medium-*-*-*-13-*-*-*-*-*-*-*"
+bgcolor='#333333'
+fgcolor='#efefef'
+
+output=" ^fg($sieben)[^fg($acht)$title^fg($sieben)]^fg() $message"
+width=$(dzen2-textwidth "$font" " [$title] $message")
+#width=1266
+
+herbstclient pad 0 48 0 0
+
+echo "$output" \
+	| dzen2 -p $duration -u -ta l \
+		-e "button2=exit:0" \
+		-x "$x" -y "$y" \
+		-w "$width" -h "$height" \
+		-fn "$font" \
+		-bg "$bgcolor" -fg "$fgcolor"
+
+herbstclient pad 0 24 0 0

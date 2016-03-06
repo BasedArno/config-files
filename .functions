@@ -1,0 +1,213 @@
+function printpath() {
+	echo $PATH \
+		| tr ':' '\n'
+}
+
+function winname() {
+	local wintitle="$*"
+	printf "\e]2;$wintitle\a"
+}
+
+function signal-done() {
+        local message=
+
+        if [[ $# -gt 0 ]]
+        then
+                message="$@"
+        else # user didn't put an argument
+                message="Task has been completed."
+        fi
+
+        notify-send --urgency=low -i /usr/share/icons/gnome/32x32/emblems/emblem-default.png "$message"
+}
+
+function nth() {
+	local NTH=$1
+
+	local END=$((NTH+1))
+	while read $(eval echo COL{1..$END})
+	do
+		eval echo \$COL${NTH}
+	done
+}
+
+function gen-password() {
+        local length=8
+
+        if [[ $# -gt 0 ]]
+        then
+                length=$1
+        fi
+
+        < /dev/urandom tr -dc [:graph:] \
+                | head --bytes=$length
+        echo
+}
+
+function nav() {
+	local dir="$1"
+	shift
+	local lsopts="$*"
+
+	cd $dir \
+		&& ls --color=auto $lsopts
+}
+
+function extract() {
+	local file=$1
+
+	if [ -f $file ]; then
+		case $file in
+			*.tar.bz2)      tar -x -j -v -f $file ;;
+			*.tar.gz)       tar -x -z -v -f $file ;;
+			*.bz2)          bunzip2 $file   ;;
+			*.tar)          tar -x -v -f $file  ;;
+			*.zip)          unzip $file     ;;
+			*)              echo "$file cannot be extracted with $FUNCNAME()"
+		esac
+	else
+		echo "$file is not a valid file"
+	fi
+}
+
+function conf() {
+	function print_usage() {
+		cat << EOF
+conf: usage: conf [OPTIONS] parameter
+
+possible uses:
+	vim
+	emacs
+	sbcl
+	bash (.bashrc)
+	bashp (.bash_profile)
+	zsh (.zshrc)
+	zshp (.zprofile)
+	functions
+	ssh
+	i3wm (i3)
+	hlwm (herbstluft)
+	xinit
+	xbk (xbindkeys)
+	compton
+
+options:
+	-h      help
+	-n      don't source file after editing
+	-v      print version and exit
+EOF
+	}
+
+	# source file after editing?
+	local source_flag=true
+	local parameter=
+
+	while [[ $# -gt 0 ]]
+	do
+		local arg="$1"
+		shift
+		case $arg in
+			-n)     source_flag=false ;;
+			-h)     print_usage; return ;;
+			-v)     echo "version 0.1.0"; return ;;
+			*)      parameter=$arg ;;
+		esac
+	done
+
+	case $parameter in
+		vim)		vim ~/.vimrc ;;
+		emacs)		vim ~/.emacs ;;
+		sbcl)       vim ~/.sbclrc ;;
+		bash)       vim ~/.bashrc && $source_flag && source ~/.bashrc ;;
+		bashp)      vim ~/.bash_profile && $source_flag && source ~/.bash_profile ;;
+		zsh)		vim ~/.zshrc && $source_flag && source ~/.zshrc ;;
+		zshp)       vim ~/.zprofile && $source_flag && source ~/.zprofile ;;
+		functions)	vim ~/.functions && $source_flag && source ~/.functions ;;
+		conf)		vim ~/.functions && $source_flag && source ~/.functions ;;
+		ssh)        vim ~/.ssh/config ;;
+		i3wm)		vim ~/.i3/config ;;
+		hlwm)		vim ~/.config/herbstluftwm/autostart ;;
+		dzen2)		vim ~/.config/herbstluftwm/panel.sh ;;
+		xinit)		vim ~/.xinitrc ;;
+		xbk)		vim ~/.xbindkeysrc.scm ;;
+		compton)	vim ~/.config/compton.conf ;;
+		*)          echo "Incorrect parameter."; print_usage ;;
+	esac
+}
+
+function Solon() {
+	local message="$*"
+
+	curl -X POST \
+		-d "{ \
+			\"bot_id\":\"9b6cc79025993de9caffc44aaa\", \
+			\"text\":\"$message\" \
+		}" \
+		-H 'Content-Type: application/json' \
+		https://api.groupme.com/v3/bots/post
+}
+
+function ps-grep() {
+	local search_string="$*"
+
+	ps aux \
+		| grep $search_string \
+		| grep -v grep
+}
+
+function google-this() {
+	local search_string="$*"
+	search_string=$(echo ${search_string} | tr ' ' '+')
+	echo ${search_string}
+
+	nohup firefox www.google.com/search?q=${search_string} > /dev/null
+}
+
+function blog-format() {
+	local notebook="$*"
+
+	ipython nbconvert --to html --template basic --NbConvertBase.default_language=julia "${notebook}"
+}
+
+function pretty-printenv() {
+	# while loop adds a blank line between entries
+	printenv \
+		| while read line
+			do printf "%s\n\n" "$line"
+			done \
+		| sed 's/=/:\n\t/'
+}
+
+#function emacsd() {
+#	(nohup emacs 0<&- &>/dev/null &) &
+#}
+
+# poor man's daemon process
+function daemonize() {
+	local commands="$*"
+
+	# (... &) will double fork (background in a separate shell)
+	(
+		# close stdin, stdout, and stderr
+		exec 0>&-
+		exec 1>&-
+		exec 2>&-
+		# background process
+		nohup $commands &
+	)
+}
+
+function ls-enum() {
+	local options="$@"
+	local i=1
+	ls ${options} \
+		| while read line
+	do
+		printf "%s:\t%s\n" "$i" "$line"
+		(( i++ ))
+	done
+}
+
+function cerr() {
+	cat <<< "$@" 1>&2
+}

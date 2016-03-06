@@ -1,0 +1,47 @@
+#!/bin/zsh
+
+if [[ $1 = "percent" ]]
+then
+	percent=$(upower -i /org/freedesktop/UPower/devices/battery_BAT0 \
+		| grep 'percentage' \
+		| cut -d: -f 2 \
+		| sed 's/ //g' \
+		| sed 's/%//')
+
+	color=$(julia -e "r = hex(Int(floor(255*(1-$percent/100))),2); g = hex(Int(floor(255*($percent/100))),2); b = hex(0, 2); println(string(r,g,b))")
+	#color=$(python3 -c "print('#',hex(int(255*(1-$percent/100))*65536 + int(255*$percent/100)*256)[3:],sep='')")
+
+
+	print "$percent%" # full text
+	print "$percent%" # short text
+	print "$color" # color
+elif [[ $1 = "rest" ]]
+then
+	state=$(upower -i /org/freedesktop/UPower/devices/battery_BAT0 \
+		| grep 'state' \
+		| cut -d: -f 2 \
+		| sed 's/ //g')
+
+	time=$(upower -i /org/freedesktop/UPower/devices/battery_BAT0 \
+		| grep 'time\ to' \
+		| cut -d: -f 2 \
+		| sed 's/ //g')
+
+	# long text
+	case "$state" in
+		charging)		print " ↑ $time left.";;
+		discharging)	print " ↓ $time left.";;
+		*)				print "full";;
+	esac
+
+	# short text
+	case "$state" in
+		charging)		print "↑";;
+		discharging)	print "↓";;
+		*)				print "full";;
+	esac
+else
+	print "error"
+	print "err"
+	print "#0000ff"
+fi

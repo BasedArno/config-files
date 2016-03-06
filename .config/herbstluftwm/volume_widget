@@ -1,0 +1,62 @@
+#!/bin/bash
+
+## Init
+function hc() {
+	herbstclient "$@"
+}
+
+monitor=${1:-0}
+# x and width don't matter yet
+x=$(xdotool getmouselocation | cut -d ' ' -f 1 | cut -d ':' -f 2  )
+y=28
+width=100
+bar_width=80
+height=24
+bar_height=16
+font="-*-fixed-medium-*-*-*-13-*-*-*-*-*-*-*"
+bgcolor='#333333'
+fgcolor='#efefef'
+# extract colors from color file
+colorfile="$HOME/.config/herbstluftwm/colors.txt"
+eins=$(sed '1q;d' "$colorfile")
+zwei=$(sed '2q;d' "$colorfile")
+drei=$(sed '3q;d'  "$colorfile")
+vier=$(sed '4q;d'  "$colorfile")
+fuenf=$(sed '5q;d'  "$colorfile")
+sechs=$(sed '6q;d'  "$colorfile")
+sieben=$(sed '7q;d'  "$colorfile")
+acht=$(sed '8q;d'  "$colorfile")
+
+x=$(( $x - $width / 2 ))
+
+function volume() {
+	cmd="$1"
+	if [ "$cmd" = "get" ]
+	then
+		amixer get Master \
+			| grep -o '[0-9]\+%' \
+			| tr -d '%'
+	elif [ "$cmd" = "toggle" ]
+	then
+		amixer set Master toggle && amixer set Headphone toggle
+	fi
+}
+export volume
+
+function main() {
+	vol_bar=$(amixer get Master \
+		| grep -o '[0-9]\+%' \
+		| tr -d '%' \
+		| dzen2-gdbar \
+			-w "$bar_width" -h "$bar_height" \
+			-bg "$zwei" -fg "$fuenf" \
+			-min 0 -max 100)
+	echo "^ca(1,\"amixer\" set Master toggle && \"amixer\" set Headphone toggle)$vol_bar^ca()" \
+		| dzen2 -p 3 -u \
+			-e "button2=exit:0" \
+			-x "$x" -y "$y" \
+			-w "$width" -h "$height" \
+			-bg "$bgcolor" -fg "$fgcolor"
+}
+
+main
