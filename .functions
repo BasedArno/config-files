@@ -208,6 +208,44 @@ function ls-enum() {
 	done
 }
 
+function lu() {
+	ls -Al \
+		| sed '1d' \
+		| awk 'BEGIN { format = "%-20s\t%s\n"
+			printf format, "file", "user:group"
+			printf format, "----", "----------" }
+			{
+				filename = $9
+				if (length(filename) > 20)
+				{
+					filename = sprintf("%s...", substr(filename, 1, 17))
+				}
+				printf "%-20s\t%s:%s\n", filename, $3, $4
+			}'
+}
+
+function volume() {
+	vol="$1"
+	amixer set Master "$vol%"
+}
+
+function anon() {
+	PROMPT="%{$fg[red]%}Anon%{$reset_color%} @ %{$fg[blue]%}%m%{$reset_color%}" # user and host
+	PROMPT+=" in %{$fg_bold[magenta]%}%~%{$reset_color%}" # current directory
+	PROMPT+=$'\n'
+	PROMPT+="%# "
+}
+
+function bkup() {
+	file="$1"
+	cp "$file" "${file}.old"
+}
+
+function restor() {
+	file="$1"
+	cp "$file" "${file%.*}"
+}
+
 function cerr() {
 	cat <<< "$@" 1>&2
 }

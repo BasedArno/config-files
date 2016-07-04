@@ -6,18 +6,25 @@ print "\e]0;Oh My Zsh!\a"
 ## Set up the prompt
 autoload -Uz promptinit && promptinit
 autoload -U colors && colors
-# Left side prompt
-PROMPT="%{$fg[red]%}%n%{$reset_color%} @ %{$fg[blue]%}%m%{$reset_color%}" # user and host
-PROMPT+=" in %{$fg_bold[magenta]%}%~%{$reset_color%}" # current directory
+## Left side prompt
+# (red)user @ (blue)host
+PROMPT="%{$fg[red]%}%n%{$reset_color%} @ %{$fg[blue]%}%m%{$reset_color%}"
+# in (magenta)directory
+PROMPT+=" in %{$fg_bold[magenta]%}%~%{$reset_color%}"
+# newline
 PROMPT+=$'\n'
+# super awesome prompt
 PROMPT+="%# "
 
-# Right side prompt
-RPROMPT="#" # literal octothorpe to make copy-pasting easier
+## Right side prompt
+# literal octothorpe to make copy-pasting easier
+RPROMPT="#"
 #RPROMPT+=" %t" # time in AM/PM format
 RPROMPT+=""
-RPROMPT+=" exited %(?.%{$fg[green]%}.%{$fg[red]%})%? %{$reset_color%}" # colored exit status
-RPROMPT+="[%{$fg[cyan]%}%!%{$reset_color%}]" # command counter
+# exited (green if 0 or red if anything else)exit status
+RPROMPT+=" exited %(?.%{$fg[green]%}.%{$fg[red]%})%? %{$reset_color%}"
+# [(cyan)command number]
+RPROMPT+="[%{$fg[cyan]%}%!%{$reset_color%}]"
 ## ------
 
 ## History
@@ -25,7 +32,7 @@ setopt histignorealldups
 unsetopt sharehistory
 # Use emacs keybindings (easy enough to enter vim mode)
 bindkey -e
-# Keep 1000 lines of history within the shell and save it to ~/.zsh_history:
+# Keep 100000 lines of history within the shell and save it to ~/.zsh_history:
 HISTSIZE=100000
 SAVEHIST=100000
 HISTFILE=~/.zsh_history
@@ -33,6 +40,7 @@ HISTFILE=~/.zsh_history
 
 ## Environment
 export PATH=/usr/local/visit/bin:$PATH
+export PATH=/usr/games:$PATH
 export PATH=/home/arno/bin:$PATH
 
 export EDITOR=/usr/bin/vim
@@ -49,15 +57,19 @@ alias ls='ls --color=auto'
 alias la='ls -AF'
 alias ll='ls -alh'
 alias l1='ls -1'
+
 alias grep='grep --color=auto'
+alias egrep='egrep --color=auto'
+alias fgrep='fgrep --color=auto'
 alias tr='noglob tr'
 alias spkg='sudo aptitude'
 alias nautilus='nautilus --no-desktop'
+alias history='history 1'
 alias clock='tty-clock -c -C 1'
 alias setclip='xclip -selection c'
 alias getclip='xclip -selection clipboard -o'
 alias timestamp='date +"%Y-%m-%d %r"'
-alias ijulia='ipython notebook --profile julia'
+alias ijulia='jupyter notebook --profile julia'
 alias iron='mocp -T yellow_red_theme'
 alias yacc='bison -d --verbose --debug'
 alias pstree='pstree -pAn'
