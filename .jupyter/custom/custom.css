@@ -16,8 +16,14 @@ div#notebook, div.CodeMirror, div.output_area pre, div.output_wrapper, div.promp
 */
 
 /* GLOBALS */
-body {background-color: #151515;}
-a {color: #6fc2ef;}
+/*body {background-color: #151515;}*/
+body {
+	background-color: #efefef;
+	color: #121212;
+}
+/*a {color: #6fc2ef;}*/
+a {color: #f37626;}
+
 
 /* INTRO PAGE */
 .toolbar_info, .list_container {color: #e0e0e0;}

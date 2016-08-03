@@ -8,9 +8,12 @@ autoload -Uz promptinit && promptinit
 autoload -U colors && colors
 ## Left side prompt
 # (red)user @ (blue)host
-PROMPT="%{$fg[red]%}%n%{$reset_color%} @ %{$fg[blue]%}%m%{$reset_color%}"
+PROMPT="%{$fg[red]%}%n%{$reset_color%} at %{$fg[blue]%}%m%{$reset_color%}"
 # in (magenta)directory
-PROMPT+=" in %{$fg_bold[magenta]%}%~%{$reset_color%}"
+# with shortened dirname
+PROMPT+=" in %{$fg_bold[magenta]%}"
+PROMPT+="%(4~|.../%3~|%~)"
+PROMPT+="%{$reset_color%}"
 # newline
 PROMPT+=$'\n'
 # super awesome prompt
@@ -22,9 +25,15 @@ RPROMPT="#"
 #RPROMPT+=" %t" # time in AM/PM format
 RPROMPT+=""
 # exited (green if 0 or red if anything else)exit status
-RPROMPT+=" exited %(?.%{$fg[green]%}.%{$fg[red]%})%? %{$reset_color%}"
+RPROMPT+=" exited %(?"
+RPROMPT+="."
+RPROMPT+="%{$fg[green]%}(^_^)%{$reset_color%}"
+RPROMPT+="."
+RPROMPT+="%{$fg[red]%}(つ⋟﹏⋞%)つ︵%{$reset_color%}"
+RPROMPT+="%{$fg[red]%}%?%{$reset_color%}"
+RPROMPT+=")"
 # [(cyan)command number]
-RPROMPT+="[%{$fg[cyan]%}%!%{$reset_color%}]"
+#RPROMPT+="[%{$fg[cyan]%}%!%{$reset_color%}]"
 ## ------
 
 ## History
@@ -44,9 +53,12 @@ export PATH=/usr/games:$PATH
 export PATH=/home/arno/bin:$PATH
 
 export EDITOR=/usr/bin/vim
-export VISUAL=/usr/bin/gedit
+export VISUAL=/usr/bin/atom
 
 export TERM="xterm-256color"
+
+export GOPATH=/home/arno/dev/go
+export PATH=$PATH:$GOPATH/bin
 
 setopt extendedglob
 setopt interactivecomments
@@ -61,36 +73,35 @@ alias l1='ls -1'
 alias grep='grep --color=auto'
 alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
+
 alias tr='noglob tr'
-alias spkg='sudo aptitude'
-alias nautilus='nautilus --no-desktop'
 alias history='history 1'
-alias clock='tty-clock -c -C 1'
+alias pstree='pstree -pAn'
+alias nautilus='nautilus --no-desktop'
+
+alias spkg='sudo aptitude'
+alias pls='sudo $(fc -ln -1)'
+alias fucking='sudo'
+
+alias ffmpeg='avconv'
 alias setclip='xclip -selection c'
 alias getclip='xclip -selection clipboard -o'
 alias timestamp='date +"%Y-%m-%d %r"'
+alias yacc='bison -d --verbose --debug'
+alias hc='herbstclient'
+alias clock='tty-clock -c -C 1'
 alias ijulia='jupyter notebook --profile julia'
 alias iron='mocp -T yellow_red_theme'
-alias yacc='bison -d --verbose --debug'
-alias pstree='pstree -pAn'
-alias hc='herbstclient'
-alias pls='sudo $(history -p !!)'
-alias reset-sound='amixer set Master unmute && amixer set Headphone toggle'
+alias remember='history | egrep'
+alias reset-volume='amixer set Master unmute && amixer set Headphone toggle'
+alias reset-sound="pulseaudio -k && sudo alsa force-reload"
 ## ------
 
-## Functions galore
-source ~/.functions
+## Moar Aliases
+alias -g DAEMON=" >/dev/null 2>&1 &"
+alias -g LESS="| less -R"
 
-imv() {
-	local src dst
-	for src in "$@"
-	do
-		[[ -e $src ]] || { print -u2 "$src does not exist"; continue }
-		dst=$src
-		vared dst
-		[[ $src != $dst ]] && mkdir -p $dst:h && mv -n $src $dst
-	done
-}
+hash -d	papes="/home/arno/media/pics/Wallpapers"
 ## ------
 
 ## Use modern completion system
@@ -118,6 +129,12 @@ zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
 
 ## Syntax Highlighting Plugin
 source ~/repos/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+## ------
+
+## Functions galore
+source ~/.functions
+# and their autocompletions
+source ~/.autocomp
 ## ------
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

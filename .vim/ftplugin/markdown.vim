@@ -551,3 +551,5 @@ command! -buffer Toc call s:Toc()
 command! -buffer Toch call s:Toc('horizontal')
 command! -buffer Tocv call s:Toc('vertical')
 command! -buffer Toct call s:Toc('tab')
+
+set textwidth=79

@@ -32,12 +32,7 @@ function nth() {
 }
 
 function gen-password() {
-        local length=8
-
-        if [[ $# -gt 0 ]]
-        then
-                length=$1
-        fi
+        local length=${1:-8}
 
         < /dev/urandom tr -dc [:graph:] \
                 | head --bytes=$length
@@ -46,8 +41,11 @@ function gen-password() {
 
 function nav() {
 	local dir="$1"
-	shift
-	local lsopts="$*"
+	if (($# > 1))
+	then
+		shift
+		local lsopts="$*"
+	fi
 
 	cd $dir \
 		&& ls --color=auto $lsopts
@@ -84,6 +82,7 @@ possible uses:
 	zsh (.zshrc)
 	zshp (.zprofile)
 	functions
+	autocomp
 	ssh
 	i3wm (i3)
 	hlwm (herbstluft)
@@ -109,7 +108,7 @@ EOF
 		case $arg in
 			-n)     source_flag=false ;;
 			-h)     print_usage; return ;;
-			-v)     echo "version 0.1.0"; return ;;
+			-v)     echo "version 0.2.0"; return ;;
 			*)      parameter=$arg ;;
 		esac
 	done
@@ -123,6 +122,7 @@ EOF
 		zsh)		vim ~/.zshrc && $source_flag && source ~/.zshrc ;;
 		zshp)       vim ~/.zprofile && $source_flag && source ~/.zprofile ;;
 		functions)	vim ~/.functions && $source_flag && source ~/.functions ;;
+		autocomp)	vim ~/.autocomp && $source_flag && source ~/.autocomp ;;
 		conf)		vim ~/.functions && $source_flag && source ~/.functions ;;
 		ssh)        vim ~/.ssh/config ;;
 		i3wm)		vim ~/.i3/config ;;
@@ -197,17 +197,6 @@ function daemonize() {
 	)
 }
 
-function ls-enum() {
-	local options="$@"
-	local i=1
-	ls ${options} \
-		| while read line
-	do
-		printf "%s:\t%s\n" "$i" "$line"
-		(( i++ ))
-	done
-}
-
 function lu() {
 	ls -Al \
 		| sed '1d' \
@@ -225,7 +214,7 @@ function lu() {
 }
 
 function volume() {
-	vol="$1"
+	local vol="$1"
 	amixer set Master "$vol%"
 }
 
@@ -237,15 +226,109 @@ function anon() {
 }
 
 function bkup() {
-	file="$1"
+	local file="$1"
 	cp "$file" "${file}.old"
 }
 
 function restor() {
-	file="$1"
+	local file="$1"
 	cp "$file" "${file%.*}"
 }
 
+function mkd() {
+	local dir="$@"
+	mkdir -p "$dir" \
+		&& cd "$dir"
+}
+
 function cerr() {
-	cat <<< "$@" 1>&2
+	#cat <<< "$@" 1>&2
+	echo "$@" 1>&2
+}
+
+function up() {
+	if [[ "$#" = 0 ]]
+	then
+		cd ..
+		return
+	fi
+
+	input="$1"
+
+	re='^[0-9]+$'
+	if [[ "$input" =~ $re ]]
+	then
+		local count="$input"
+		until [[ "$count" = 0 ]]
+		do
+			cd ..
+			let count-=1
+		done
+	else
+		local dir="$(pwd)"
+		while :
+		do
+			if [[ "$(basename $dir)" = "$input" ]]
+			then
+				break
+			fi
+			dir="$(dirname $dir)"
+		done
+		cd "$dir"
+	fi
+}
+
+function imv() {
+	local src dst
+	for src in "$@"
+	do
+		[[ -e $src ]] || { print -u2 "$src does not exist"; continue }
+		dst=$src
+		vared dst
+		[[ $src != $dst ]] && mkdir -p $dst:h && mv -n $src $dst
+	done
+}
+
+function qv() {
+	local files="$@"
+	pygmentize -g -O style=colorful "$files" \
+		| less -R -N
+}
+
+function man() {
+    #env LESS_TERMCAP_mb=$'\e[01;37m' \
+    #LESS_TERMCAP_md=$'\e[01;38;5;74m' \
+    #LESS_TERMCAP_me=$'\e[0m' \
+    #LESS_TERMCAP_se=$'\e[0m' \
+    #LESS_TERMCAP_so=$'\e[38;5;246m' \
+    #LESS_TERMCAP_ue=$'\e[0m' \
+    #LESS_TERMCAP_us=$'\e[04;38;5;146m' \
+	# mb: blinking mode
+	# md: double-bright mode - red
+	# me: exit all appearance modes
+	# se: leave standout mode
+	# so: enter standout mode - yellow
+	# ue: leave underline mode
+	# us: enter underline mode - blue
+	env LESS_TERMCAP_mb=$(printf '\e[01;32m') \
+		LESS_TERMCAP_md=$(printf '\e[01;38;5;167m') \
+		LESS_TERMCAP_me=$(printf '\e[0m') \
+		LESS_TERMCAP_se=$(printf '\e[0m') \
+		LESS_TERMCAP_so=$(printf '\e[01;38;5;227m') \
+		LESS_TERMCAP_ue=$(printf '\e[0m') \
+		LESS_TERMCAP_us=$(printf '\e[04;38;5;109m') \
+		man "$@"
+}
+
+function myll() {
+	local files
+	files=($(ls -F "$@"))
+	for file in "$files"
+	do
+		echo "$file"
+		local permissions=$(stat -c "%A" "$file")
+		local user_and_group=$(stat -c "%U:%G" "$file")
+		local timestamp=$(date -r "$file" +'%a,%b-%d-%Y')
+		echo "|$file| <$permissions> $user_and_group $timestamp"
+	done #| column -t
 }
