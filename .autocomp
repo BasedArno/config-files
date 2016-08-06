@@ -1,0 +1,45 @@
+typeset -A opt_args
+
+# conf command
+compdef _conf conf
+
+function _conf_files() {
+	local -a longs singles
+	longs=("vim:the greatest editor ever" \
+		"emacs:good os but bad editor" \
+		"bash:.bashrc" \
+		"bashp:.bash_profile" \
+		"zsh:.zshrc" \
+		"zshp:.zprofile" \
+		"i3wm:i3 window manager" \
+		"hlwm:herbstluft window manager" \
+		"xbk:xbindkeys")
+	singles=("sbcl" \
+		"functions" \
+		"autocomp" \
+		"ssh" \
+		"dzen2" \
+		"xinit" \
+		"compton")
+	_describe "with descriptions" longs
+	_multi_parts / singles
+}
+
+function _conf_flags() {
+	local -a flags
+	flags=("-h:help" \
+		"-n:don't source config after editing" \
+		"-v:print version")
+	_describe "flags" flags
+}
+
+function _conf() {
+	_arguments "1:config:_conf_files" "::flags:_conf_flags"
+}
+
+# up command
+compdef _up up
+
+function _up() {
+	_alternative "dirs:upper directories:($(pwd | tr '/' ' ' | sed 's/^ //'))"
+}

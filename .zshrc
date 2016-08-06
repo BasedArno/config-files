@@ -98,7 +98,7 @@ alias reset-sound="pulseaudio -k && sudo alsa force-reload"
 ## ------
 
 ## Moar Aliases
-alias -g DAEMON=" >/dev/null 2>&1 &"
+alias -g DAEMON=" </dev/null >/dev/null 2>&1 &"
 alias -g LESS="| less -R"
 
 hash -d	papes="/home/arno/media/pics/Wallpapers"
