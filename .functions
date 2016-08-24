@@ -140,13 +140,14 @@ function mkd() {
 
 # interactive mv
 function imv() {
-	local src dst
+	local src dest
 	for src in "$@"
 	do
 		[[ -e "$src" ]] || { cerr "$src does not exist"; continue }
-		dst="$src"
-		vared dst
-		[[ "$src" != "$dst" ]] && mkdir -p "$dst":h && mv -n "$src" "$dst"
+		dest="$src"
+		vared dest
+		#[[ "$src" != "$dest" ]] && mkdir -p "$dest"(:h) && mv -n "$src" "$dest"
+		[[ "$src" != "$dest" ]] && mv -n "$src" "$dest"
 	done
 }
 
@@ -331,4 +332,13 @@ function Solon() {
 		}" \
 		-H 'Content-Type: application/json' \
 		https://api.groupme.com/v3/bots/post
+}
+
+function youtube-vid() {                                          # exited (^_^)
+	url="$@"
+	youtube-dl --extract-audio \
+		--audio-format best \
+		--audio-quality 0 \
+		--keep-video \
+		"$url"
 }

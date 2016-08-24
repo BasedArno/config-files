@@ -12,6 +12,7 @@ function hc() {
 	herbstclient "$@"
 }
 
+hc lock
 hc emit_hook reload
 
 ## Bare Basics
@@ -22,6 +23,7 @@ hc keybind $Win-$Alt-q quit
 hc keybind $Win-Shift-r reload
 hc keybind $Win-Return spawn gnome-terminal &
 hc keybind $Win-space spawn $HOME/bin/rofi.sh
+hc keybind $Win-l chain , emit_hook lock , spawn $HOME/bin/lock
 hc keybind $Win-c spawn $HSCRIPT/herbstmsg
 
 ## Layout Control
@@ -71,12 +73,17 @@ hc keybind $Alt-Tab cycle_all +1
 hc keybind $Alt-Shift-Tab cycle_all -1
 hc keybind $Win-b use_previous
 
+## Scratchpad
+hc keybind $Win-s spawn $HSCRIPT/scratchpad.sh -1
+hc keybind $Win-Shift-s spawn $HSCRIPT/scratchpad.sh +1
+
 ## Window Rules
 hc unrule --all
 hc rule focus=on
 hc rule windowtype~'_NET_WM_WINDOW_TYPE_(DIALOG|UTILITY|SPLASH)' pseudotile=on
 hc rule windowtype='_NET_WM_WINDOW_TYPE_DIALOG' focus=on
 hc rule windowtype~'_NET_WM_WINDOW_TYPE_(NOTIFICATION|DOCK)' manage=off
+hc rule instance="scratchpad" tag="%" focus=false
 # gimp
 #hc rule class=Gimp tag=gimp index=01 pseudotile=on
 #hc rule class=Gimp windowrole~'gimp-(image-window|toolbox|dock)' pseudotile=off
@@ -112,33 +119,50 @@ hc mousebind $Win-Button3 resize
 hc keybind $Win-semicolon emit_hook togglehidepanel
 #hc keybind $Win-Shift-d chain , emit_hook quit_panel , spawn $HSCRIPT/panel.sh &
 
+## Volume Buttons
+hc keybind XF86AudioRaiseVolume spawn vol +5%
+hc keybind XF86AudioLowerVolume spawn vol -5%
+hc keybind XF86AudioMute spawn vol mute
+
 ## Colors
 hc keybind $Win-Shift-d spawn $HSCRIPT/update_theme.sh
 hc spawn $HSCRIPT/update_theme.sh
 
 # set colors, gaps, etc...
-hc set frame_gap 50
+hc set frame_gap 0
 hc keybind $Win-g chain , cycle_value frame_gap 0 4 12 50 , emit_hook quit_panel , spawn $HSCRIPT/panel.sh &
 hc keybind $Win-9 chain , set frame_gap 50 , emit_hook quit_panel , spawn $HSCRIPT/panel.sh &
 hc keybind $Win-0 chain , set frame_gap 0 , emit_hook quit_panel , spawn $HSCRIPT/panel.sh &
 hc set frame_border_inner_width 0
-hc set frame_border_border_width 1
-hc set frame_normal_opacity 25
-hc set frame_active_opacity 25
+hc set frame_border_border_width 2
+hc set frame_normal_opacity 20
+hc set frame_active_opacity 40
+hc set smart_frame_surroundings 1
 hc set window_gap 0
-hc set window_border_width 4
-hc set window_border_inner_width 4
-hc set snap_distance 4
+hc set window_border_width 2
+hc set window_border_inner_width 2
+hc set smart_window_surroundings 1
+# floating mode only
+hc set snap_distance 24
+hc set snap_gap 12
 
 ## Background Processes
+# panel!
+$HSCRIPT/panel.sh &
+# scratchpad
+gnome-terminal --title=scratchpad --role=scratchpad &
+xset +fp ~/.fonts
+xset rehash
+
+## Background Programs
 # start compositing manager (options now in compton.conf!)
 compton & #-cCGb --backend glx --paint-on-overlay --vsync opengl &
 # and gnome-settings
 gnome-settings-daemon &
-# as well as dropbox
+# and dropbox
 dropbox start &
 # extra key bindings
 killall xbindkeys
 xbindkeys &
-# panel!
-$HSCRIPT/panel.sh &
+
+hc unlock

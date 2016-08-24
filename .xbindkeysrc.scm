@@ -26,7 +26,7 @@
 (xbindkey '(shift "b:5") "xte 'mouseclick 7'")
 
 ; lock command Win+L
-(xbindkey '(Mod4 "l") "lock")
+;(xbindkey '(Mod4 "l") "lock")
 
 ;(xbindkey-function '(Mod4 shift "o")
 ;	(lambda ()

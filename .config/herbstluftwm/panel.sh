@@ -21,6 +21,7 @@ y=${geometry[1]}
 panel_width=$((${geometry[2]} - $padding_width))
 panel_height=24
 font="-*-fixed-medium-*-*-*-13-*-*-*-*-*-*-*"
+font="-*-Pointfree-*-*-*-*-13-*-*-*-*-*-*-*"
 iconfont="-*-FontAwesome-medium-*-*-*-13-*-*-*-*-*-*-*"
 bgcolor='#333333'
 fgcolor='#efefef'
@@ -115,7 +116,7 @@ function event_generator() {
 
     # time updated every second
     while true ; do
-		date +"time	^fg($sieben)%H:%M^fg() "
+		date +"time	^fg($sieben)%I:%M^fg()"
 		printf "%s\n" "layout	$(get_layout)"
         sleep 1 || break
     done > >(uniq_linebuffered) &
@@ -151,7 +152,7 @@ function event_handler() {
 	bat_stat=""
 	time=""
 	date=""
-    windowtitle=""
+    windowtitle="i can haz window title?"
 
 	## Icons
 	layout_icon=$(icon "\uf0c9")
@@ -210,33 +211,50 @@ function event_handler() {
         done
         printf "%s" " $separator"
 		# window title (not name of program)
-        printf "%s" "^bg()^fg() ${windowtitle//^/^^}"
+		printf "%s" " ^bg($drei)^fg() ${windowtitle//^/^^} ^bg()^fg()"
 
 		## start right aligned text
-		right="^fg($fuenf)$layout_icon^fg() "
+		right=" ^fg($fuenf)$layout_icon^fg() "
+		symbols="$layout_icon"
+		text=""
 
 		# sysinfo widget
 		right="$right$separator ^ca(1, $HSCRIPT/sysinfo_widget)^fg($fuenf)$sys_icon^fg()^ca() "
+		symbols="$symbols$sys_icon"
+		text="$text $separator "
 
 		# wifi widget
 		right="$right$separator ^ca(1, $HSCRIPT/wifi_widget)^fg($fuenf)$wifi_icon^fg()^ca() "
+		symbols="$symbols$wifi_icon"
+		text="$text $separator "
 
 		# volume widget
 		right="$right$separator ^ca(1, $HSCRIPT/volume_widget)^fg($fuenf)$vol_icon^fg()^ca() "
+		symbols="$symbols$vol_icon"
+		text="$text $separator "
 
 		# battery widget
 		right="$right$separator ^ca(1, $HSCRIPT/battery_widget)^fg($fuenf)$bat_icon^fg()^ca() "
+		symbols="$symbols$bat_icon"
+		text="$text $separator "
 
 		# time
-        right="$right$separator ^fg($fuenf)$time_icon^fg() $time "
+		right="$right$separator ^ca(1, $HSCRIPT/time_widget)^fg($fuenf)$time_icon^fg() $time^ca() "
+		symbols="$symbols$time_icon"
+		text="$text $separator $time "
 
 		# date
-		right="$right$separator ^fg($fuenf)$date_icon^fg() $date "
+		#right="$right$separator ^fg($fuenf)$date_icon^fg() $date "
+		right="$right$separator ^ca(1, $HSCRIPT/calendar_widget)^fg($fuenf)$date_icon^fg() $date^ca() "
+		symbols="$symbols$date_icon"
+		text="$text $separator $date "
 
 		# calculate width of right side to get padding right
-        right_text_only=$(printf "%s" "$right" | sed 's.\^[^(]*([^)]*)..g')
+        #right_text_only=$(printf "%s" "$right" | sed 's.\^[^(]*([^)]*)..g')
 		# get width of right aligned text... and add some space...
-        width=$(( $(dzen2-textwidth "$font" "$right_text_only") + 270))
+        #width=$(( $(dzen2-textwidth "$font" "$right_text_only") + 270))
+        #width=$(( $(dzen2-textwidth "$font" "$right_text_only") + $(dzen2-textwidth "$iconfont" "$right_text_only") ))
+        width=$(( $(dzen2-textwidth "$font" "$text") + $(dzen2-textwidth "$iconfont" "$symbols") ))
 
 		# print it (with a newline at the end to signal being done)
         printf "%s\n" "^pa($(($panel_width - $width)))$right"

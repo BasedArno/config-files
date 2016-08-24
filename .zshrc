@@ -1,7 +1,7 @@
 ### .zshrc
 
 ## Window Title
-print "\e]0;Oh My Zsh!\a"
+#print "\e]0;Oh My Zsh!\a"
 
 ## Set up the prompt
 autoload -Uz promptinit && promptinit
@@ -83,7 +83,6 @@ alias spkg='sudo aptitude'
 alias pls='sudo $(fc -ln -1)'
 alias fucking='sudo'
 
-alias ffmpeg='avconv'
 alias setclip='xclip -selection c'
 alias getclip='xclip -selection clipboard -o'
 alias timestamp='date +"%Y-%m-%d %r"'

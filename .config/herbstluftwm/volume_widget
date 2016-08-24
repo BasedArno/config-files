@@ -14,6 +14,7 @@ bar_width=80
 height=24
 bar_height=16
 font="-*-fixed-medium-*-*-*-13-*-*-*-*-*-*-*"
+font="-*-Pointfree-*-*-*-*-13-*-*-*-*-*-*-*"
 bgcolor='#333333'
 fgcolor='#efefef'
 # extract colors from color file

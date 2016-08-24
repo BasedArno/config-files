@@ -20,6 +20,7 @@ x=$(($(herbstclient get frame_gap) + $(herbstclient get window_gap)))
 y=28 # put below status bar with 4 pixel gap
 height=24
 font="-*-fixed-medium-*-*-*-13-*-*-*-*-*-*-*"
+font="-*-Pointfree-*-*-*-*-13-*-*-*-*-*-*-*"
 bgcolor='#333333'
 fgcolor='#efefef'
 

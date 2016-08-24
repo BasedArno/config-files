@@ -33,3 +33,16 @@ esac
 
 ## background
 sh ~/.fehbg
+
+xset +fp ~/.fonts
+xset rehash
+
+## Background Programs
+# start compositing manager (options now in compton.conf!)
+compton & #-cCGb --backend glx --paint-on-overlay --vsync opengl &
+# and gnome-settings
+gnome-settings-daemon &
+# and dropbox
+dropbox start &
+# extra key bindings
+xbindkeys &
